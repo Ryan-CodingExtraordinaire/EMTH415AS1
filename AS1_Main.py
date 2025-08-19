@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 ## CONSTANTS ##
-inflation = 0.01  # 2% inflation rate
+inflation = 0.01  # 1% inflation rate
 
 ## FUNCTIONS ##
 def dpay(t, z):
@@ -28,8 +28,65 @@ def dpay(t, z):
     """
     return inflation * z[0] + 0.03 * z[1] * z[0]
 
+def dstatus(t, z):
+    """
+    This function models how the status of an employee changes with time.
+    ds = alpha * Status * (1 - Status)
+    alpha = alpha_R * R + alpha_T * T
+    1 = R + T
+    where R is the research level and T is the teaching level.
+    0 <= R, T <= 1
 
+    Arguments:
+    t : float
+        The time in years.
+    z : list
+        A list holding the career state of the employee.
+    returns:
+    dStatus : float
+        The change in status of the employee at time t.
+    """
+    alpha_R = 0.1  # Research contribution to status change
+    alpha_T = 0.05  # Teaching contribution to status change
+    S = z[1]  # Status
+    R = z[2]  # Research level
 
+    return (alpha_R * R + alpha_T * (1 - R)) * S * (1 - S)
+
+def dresearch(t, z):
+    """
+    This function models how the research level of an employee changes with time.
+    dr = beta * (1 - R) * R
+    Arguments:
+    t : float
+        The time in years.
+    z : list
+        A list holding the career state of the employee.
+    returns:
+    dResearch : float
+        The change in research level of the employee at time t.
+    """
+    R = z[2]  # Research level
+    beta = 0.05  # Research growth rate
+    return beta * (1 - R) * R
+
+def career_evolution(t, z):
+    """
+    This function computes the career evolution of an employee over time.
+    Arguments:
+    t : float
+        The time in years.
+    z : list
+        A list holding the career state of the employee.
+    returns:
+    dz : list
+        A list containing the changes in pay, status, and research level at time t.
+    """
+    dPay = dpay(t, z)
+    dStatus = dstatus(t, z)
+    dResearch = dresearch(t, z)
+    
+    return [dPay, dStatus, dResearch]
 
 if __name__ == "__main__":
     #Put test sequence here.
