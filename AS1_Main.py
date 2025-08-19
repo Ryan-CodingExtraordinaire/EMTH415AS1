@@ -8,6 +8,7 @@ The convention will be to define the career state (z) as an array of the form:
 which covers the three main ODEs we will be working with. 
 """
 import numpy as np
+from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 
 ## CONSTANTS ##
@@ -90,3 +91,25 @@ def career_evolution(t, z):
 
 if __name__ == "__main__":
     #Put test sequence here.
+    t = np.linspace(0, 40, 100)  # Assume a 40-year career
+    z = [50000, 0.5, 0.5]  # Initial state: [Pay, Status, Research]
+    
+    # Solve the system using solve_ivp
+    solution = solve_ivp(career_evolution, [t[0], t[-1]], z, t_eval=t, method='RK45')
+
+    # Extract the results
+    pay = solution.y[0]
+    status = solution.y[1]
+    research = solution.y[2]
+
+    # Plot the results
+    plt.figure(figsize=(10, 6))
+    plt.plot(t, pay/100000, label="Pay (per 100k)")
+    plt.plot(t, status, label="Status")
+    plt.plot(t, research, label="Research")
+    plt.xlabel("Time (years)")
+    plt.ylabel("Values")
+    plt.title("Career Evolution Over Time")
+    plt.legend()
+    plt.grid()
+    plt.show()
