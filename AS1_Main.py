@@ -73,7 +73,7 @@ def dresearch(t, z):
 
 def career_evolution(t, z):
     """
-    This function computes the career evolution of an employee over time.
+    This function describes the change in career state of an employee over time.
     Arguments:
     t : float
         The time in years.
@@ -90,7 +90,7 @@ def career_evolution(t, z):
     return [dPay, dStatus, dResearch]
 
 if __name__ == "__main__":
-    #Put test sequence here.
+
     t = np.linspace(0, 40, 100)  # Assume a 40-year career
     z = [50000, 0.5, 0.5]  # Initial state: [Pay, Status, Research]
     
