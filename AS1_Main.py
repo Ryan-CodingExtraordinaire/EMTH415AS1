@@ -44,7 +44,7 @@ def dstatus(t, z):
     z : list
         A list holding the career state of the employee.
     returns:
-    dStatus : float
+    dStatus : floatasdk
         The change in status of the employee at time t.
     """
     alpha_R = 0.1  # Research contribution to status change
