@@ -12,26 +12,26 @@ from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 
 ## CONSTANTS ##
-inflation = 0.01  # 1% inflation rate
+inflation = 0.01  # 1% inflation rate [I don't know if this is the right value]
 
 ## FUNCTIONS ##
 def dpay(t, z):
     """
-    This function models how the amount of pay recieved by an employee changes with time.
+    This function models how the amount of pay recieved by an academic changes with time.
     Arguments:
     t : float
         The time in years.
     z : list
-        A list holding the career state of the employee.
+        A list holding the career state of the academic.
     returns:
     dPay : float
-        The change in pay received by the employee at time t.
+        The change in pay received by the academic at time t.
     """
     return inflation * z[0] + 0.03 * z[1] * z[0]
 
 def dstatus(t, z):
     """
-    This function models how the status of an employee changes with time.
+    This function models how the status of an academic changes with time.
     ds = alpha * Status * (1 - Status)
     alpha = alpha_R * R + alpha_T * T
     1 = R + T
@@ -42,12 +42,12 @@ def dstatus(t, z):
     t : float
         The time in years.
     z : list
-        A list holding the career state of the employee.
+        A list holding the career state of the academic.
     returns:
     dStatus : float
-        The change in status of the employee at time t.
+        The change in status of the academic at time t.
     """
-    alpha_R = 0.1  # Research contribution to status change
+    alpha_R = 0.2 # Research contribution to status change
     alpha_T = 0.05  # Teaching contribution to status change
     S = z[1]  # Status
     R = z[2]  # Research level
@@ -56,29 +56,30 @@ def dstatus(t, z):
 
 def dresearch(t, z):
     """
-    This function models how the research level of an employee changes with time.
+    This function models how the research level of an academic changes with time.
     dr = beta * (1 - R) * R
     Arguments:
     t : float
         The time in years.
     z : list
-        A list holding the career state of the employee.
+        A list holding the career state of the academic.
     returns:
     dResearch : float
-        The change in research level of the employee at time t.
+        The change in research level of the academic at time t.
     """
     R = z[2]  # Research level
-    beta = 0.05  # Research growth rate
+    S = z[1]  # Status
+    beta = 0.05 #* S  # Research growth rate, is it a function of status?
     return beta * (1 - R) * R
 
 def career_evolution(t, z):
     """
-    This function describes the change in career state of an employee over time.
+    This function describes the change in career state of an academic over time.
     Arguments:
     t : float
         The time in years.
     z : list
-        A list holding the career state of the employee.
+        A list holding the career state of the academic.
     returns:
     dz : list
         A list containing the changes in pay, status, and research level at time t.
@@ -91,16 +92,19 @@ def career_evolution(t, z):
 
 if __name__ == "__main__":
 
-    t = np.linspace(0, 40, 100)  # Assume a 40-year career
-    z = [50000, 0.5, 0.5]  # Initial state: [Pay, Status, Research]
+    t = np.linspace(0, 100, 1000)  # Assume a 40-year career
+    z0 = [50000, 0.5, 0.5]  # Initial state: [Pay, Status, Research]
     
     # Solve the system using solve_ivp
-    solution = solve_ivp(career_evolution, [t[0], t[-1]], z, t_eval=t, method='RK45')
+    solution = solve_ivp(career_evolution, [t[0], t[-1]], z0, t_eval=t, method='RK45')
 
     # Extract the results
     pay = solution.y[0]
     status = solution.y[1]
     research = solution.y[2]
+
+    # Calculate lifetime pay (integral of pay over time)
+    #lifetime_pay = np.trapz(pay, t)
 
     # Create a grid for the stream plot
     pay_vals = np.linspace(20000, 200000, 40)
@@ -125,9 +129,14 @@ if __name__ == "__main__":
 
     # Plot the stream plot
     plt.figure(figsize=(10, 6))
-    plt.streamplot(pay_grid, status_grid, dPay_grid, dStatus_grid, color='blue', density=1.5)
-    plt.xlabel("Pay")
-    plt.ylabel("Status")
-    plt.title("Stream Plot of Pay vs Status")
+    plt.plot(t, pay/100000, label="Pay (per 100k)")
+    plt.plot(t, status, label="Status")
+    plt.plot(t, research, label="Research")
+    plt.xlabel("Time (years)")
+    plt.ylabel("Values")
+    plt.title("Career Evolution Over Time")
+    plt.legend()
     plt.grid()
     plt.show()
+
+    # hello
