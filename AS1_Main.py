@@ -31,8 +31,10 @@ def dpay(t, z):
         The change in pay received by the academic at time t.
     """
 
-    inflation = np.random.uniform(-0.02, 0.1)
-    return inflation * z[0] + 0.03 * z[1] * z[0]
+    inflation = np.random.uniform(0.01, 0.06)
+    max_pay = 500000
+    pay_limit = (max_pay - z[0])/max_pay
+    return (inflation * z[0] + 0.03 * z[1] * z[0]) * pay_limit
 
 def dstatus(t, z):
     """
@@ -53,7 +55,7 @@ def dstatus(t, z):
         The change in status of the academic at time t.
     """
     alpha_R = np.random.normal(0.2, 0.1) # Research contribution to status change
-    alpha_T = np.random.normal(0.05, 0.01)  # Teaching contribution to status change
+    alpha_T = np.random.normal(0.05, 0.01) # Teaching contribution to status change
     S = z[1]  # Status
     R = z[2]  # Research level
 
@@ -98,35 +100,44 @@ def career_evolution(t, z):
 if __name__ == "__main__":
 
     t = np.linspace(0, 40, 100)  # Assume a 40-year career
-    z0 = [50000, 0.1, 0.1]  # Initial state: [Pay, Status, Research]
-    
-    # Solve the system using solve_ivp
-    solution = solve_ivp(career_evolution, [t[0], t[-1]], z0, t_eval=t, method='RK45')
+    z0_pay = 50000  # Initial pay
 
-    # Extract the results
-    pay = solution.y[0]
-    status = solution.y[1]
-    research = solution.y[2]
+    n_runs = 10  # Number of random initial conditions
+    all_pay = []
+    all_status = []
+    all_research = []
+    all_lifetime_pay = []
 
-    # Calculate lifetime pay (integral of pay over time)
-    lifetime_pay = np.trapz(pay, t)
-
-    # Plot the results with shared x-axis
     fig, ax = plt.subplots(2, sharex=True, figsize=(10, 6))
-    ax[0].plot(t, pay/100000, label=f"Pay (per 100k) Lifetime: ${lifetime_pay:,.0f}")
+
+    for i in range(n_runs):
+        z0_status = np.random.uniform(0.05, 0.5)
+        z0_research = np.random.uniform(0, 0.5)
+        z0 = [z0_pay, z0_status, z0_research]
+
+        solution = solve_ivp(career_evolution, [t[0], t[-1]], z0, t_eval=t, method='RK45')
+
+        pay = solution.y[0]
+        status = solution.y[1]
+        research = solution.y[2]
+        lifetime_pay = np.trapz(pay, t)
+
+        all_pay.append(pay)
+        all_status.append(status)
+        all_research.append(research)
+        all_lifetime_pay.append(lifetime_pay)
+
+        ax[0].plot(t, pay/100000, alpha=0.5)
+        ax[1].plot(t, status, 'b', alpha=0.5)
+        ax[1].plot(t, research, 'g', alpha=0.5)
 
     ax[0].set_ylabel("Pay (per 100k)")
-    ax[0].legend()
+    ax[0].set_title(f"{n_runs} Random Career Trajectories")
     ax[0].grid()
 
-    ax[1].plot(t, status, label="Status")
-    ax[1].plot(t, research, label="Research Level")
     ax[1].set_xlabel("Time (years)")
     ax[1].set_ylabel("Status / Research")
-    ax[1].legend()
     ax[1].grid()
 
     plt.tight_layout()
     plt.show()
-
-    # hello
