@@ -102,14 +102,32 @@ if __name__ == "__main__":
     status = solution.y[1]
     research = solution.y[2]
 
-    # Plot the results
+    # Create a grid for the stream plot
+    pay_vals = np.linspace(20000, 200000, 40)
+    status_vals = np.linspace(0, 1, 20)
+    reseacrch_vals = np.linspace(0, 1, 20)
+    pay_grid, status_grid = np.meshgrid(pay_vals, status_vals)
+
+    # Compute the derivatives on the grid
+    dPay_grid = np.zeros_like(pay_grid)
+    dStatus_grid = np.zeros_like(status_grid)
+    for i in range(pay_grid.shape[0]):
+        for j in range(pay_grid.shape[1]):
+            z_temp = [pay_grid[i, j], status_grid[i, j], 0.5]  # Assume constant research level
+            dz = career_evolution(0, z_temp)
+            dPay_grid[i, j] = dz[0]
+            dStatus_grid[i, j] = dz[1]
+
+    # Normalize the vectors for better visualization
+    magnitude = np.sqrt(dPay_grid**2 + dStatus_grid**2)
+    dPay_grid /= magnitude
+    dStatus_grid /= magnitude
+
+    # Plot the stream plot
     plt.figure(figsize=(10, 6))
-    plt.plot(t, pay/100000, label="Pay (per 100k)")
-    plt.plot(t, status, label="Status")
-    plt.plot(t, research, label="Research")
-    plt.xlabel("Time (years)")
-    plt.ylabel("Values")
-    plt.title("Career Evolution Over Time")
-    plt.legend()
+    plt.streamplot(pay_grid, status_grid, dPay_grid, dStatus_grid, color='blue', density=1.5)
+    plt.xlabel("Pay")
+    plt.ylabel("Status")
+    plt.title("Stream Plot of Pay vs Status")
     plt.grid()
     plt.show()
