@@ -69,7 +69,7 @@ def dresearch(t, z):
     """
     R = z[2]  # Research level
     S = z[1]  # Status
-    beta = 0.05 #* S  # Research growth rate, is it a function of status?
+    beta = 0.05 * S*(1-S)  # Research growth rate
     return beta * (1 - R) * R
 
 def career_evolution(t, z):
