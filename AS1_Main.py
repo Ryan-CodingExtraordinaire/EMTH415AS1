@@ -12,7 +12,10 @@ from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 
 ## CONSTANTS ##
-inflation = 0.01  # 1% inflation rate [I don't know if this is the right value]
+#inflation = 0.01  # 1% inflation rate [I don't know if this is the right value]
+# inflation equals some random number between -2 and 10%:
+
+
 
 ## FUNCTIONS ##
 def dpay(t, z):
@@ -27,6 +30,8 @@ def dpay(t, z):
     dPay : float
         The change in pay received by the academic at time t.
     """
+
+    inflation = np.random.uniform(-0.02, 0.1)
     return inflation * z[0] + 0.03 * z[1] * z[0]
 
 def dstatus(t, z):
@@ -47,8 +52,8 @@ def dstatus(t, z):
     dStatus : float
         The change in status of the academic at time t.
     """
-    alpha_R = 0.2 # Research contribution to status change
-    alpha_T = 0.05  # Teaching contribution to status change
+    alpha_R = np.random.normal(0.2, 0.1) # Research contribution to status change
+    alpha_T = np.random.normal(0.05, 0.01)  # Teaching contribution to status change
     S = z[1]  # Status
     R = z[2]  # Research level
 
@@ -69,7 +74,7 @@ def dresearch(t, z):
     """
     R = z[2]  # Research level
     S = z[1]  # Status
-    beta = 0.05 #* S  # Research growth rate, is it a function of status?
+    beta = np.random.normal(0.05, 0.5) * (S)#1/0.05*np.sin(S)  # Research growth rate, is it a function of status?
     return beta * (1 - R) * R
 
 def career_evolution(t, z):
@@ -92,8 +97,8 @@ def career_evolution(t, z):
 
 if __name__ == "__main__":
 
-    t = np.linspace(0, 100, 1000)  # Assume a 40-year career
-    z0 = [50000, 0.5, 0.5]  # Initial state: [Pay, Status, Research]
+    t = np.linspace(0, 40, 100)  # Assume a 40-year career
+    z0 = [50000, 0.1, 0.1]  # Initial state: [Pay, Status, Research]
     
     # Solve the system using solve_ivp
     solution = solve_ivp(career_evolution, [t[0], t[-1]], z0, t_eval=t, method='RK45')
@@ -104,18 +109,24 @@ if __name__ == "__main__":
     research = solution.y[2]
 
     # Calculate lifetime pay (integral of pay over time)
-    #lifetime_pay = np.trapz(pay, t)
+    lifetime_pay = np.trapz(pay, t)
 
-    # Plot the results
-    plt.figure(figsize=(10, 6))
-    plt.plot(t, pay/100000, label=f"Pay (per 100k)")#, Lifetime: ${lifetime_pay:,.0f}")
-    plt.plot(t, status, label="Status")
-    plt.plot(t, research, label="Research")
-    plt.xlabel("Time (years)")
-    plt.ylabel("Values")
-    plt.title("Career Evolution Over Time")
-    plt.legend()
-    plt.grid()
+    # Plot the results with shared x-axis
+    fig, ax = plt.subplots(2, sharex=True, figsize=(10, 6))
+    ax[0].plot(t, pay/100000, label=f"Pay (per 100k) Lifetime: ${lifetime_pay:,.0f}")
+
+    ax[0].set_ylabel("Pay (per 100k)")
+    ax[0].legend()
+    ax[0].grid()
+
+    ax[1].plot(t, status, label="Status")
+    ax[1].plot(t, research, label="Research Level")
+    ax[1].set_xlabel("Time (years)")
+    ax[1].set_ylabel("Status / Research")
+    ax[1].legend()
+    ax[1].grid()
+
+    plt.tight_layout()
     plt.show()
 
     # hello
