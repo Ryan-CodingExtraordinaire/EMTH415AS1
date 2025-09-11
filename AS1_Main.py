@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 ## CONSTANTS ##
 inflation = 0.01  # 1% inflation rate [I don't know if this is the right value]
-
+recognition = 0.03  # Recognition factor for pay increase due to status
 ## FUNCTIONS ##
 def dpay(t, z):
     """
@@ -27,7 +27,7 @@ def dpay(t, z):
     dPay : float
         The change in pay received by the academic at time t.
     """
-    return inflation * z[0] + 0.03 * z[1] * z[0]
+    return inflation * z[0] + recognition * z[1] * z[0]
 
 def dstatus(t, z):
     """
@@ -92,7 +92,7 @@ def career_evolution(t, z):
 
 if __name__ == "__main__":
 
-    t = np.linspace(0, 100, 1000)  # Assume a 40-year career
+    t = np.linspace(0, 40, 1000)  # Assume a 40-year career
     z0 = [50000, 0.5, 0.5]  # Initial state: [Pay, Status, Research]
     
     # Solve the system using solve_ivp
@@ -106,37 +106,26 @@ if __name__ == "__main__":
     # Calculate lifetime pay (integral of pay over time)
     #lifetime_pay = np.trapz(pay, t)
 
-    # Create a grid for the stream plot
-    pay_vals = np.linspace(20000, 200000, 40)
-    status_vals = np.linspace(0, 1, 20)
-    reseacrch_vals = np.linspace(0, 1, 20)
-    pay_grid, status_grid = np.meshgrid(pay_vals, status_vals)
+    plt.figure(figsize=(12, 8))
 
-    # Compute the derivatives on the grid
-    dPay_grid = np.zeros_like(pay_grid)
-    dStatus_grid = np.zeros_like(status_grid)
-    for i in range(pay_grid.shape[0]):
-        for j in range(pay_grid.shape[1]):
-            z_temp = [pay_grid[i, j], status_grid[i, j], 0.5]  # Assume constant research level
-            dz = career_evolution(0, z_temp)
-            dPay_grid[i, j] = dz[0]
-            dStatus_grid[i, j] = dz[1]
+    # Subplot for Pay
+    plt.subplot(2, 1, 1)
+    plt.plot(t, pay / 100000, label="Pay (per 100k)", color="blue")
+    plt.xlabel("Time (years)")
+    plt.ylabel("Pay (per 100k)")
+    plt.title("Pay Evolution Over Time")
+    plt.grid()
+    plt.legend()
 
-    # Normalize the vectors for better visualization
-    magnitude = np.sqrt(dPay_grid**2 + dStatus_grid**2)
-    dPay_grid /= magnitude
-    dStatus_grid /= magnitude
-
-    # Plot the stream plot
-    plt.figure(figsize=(10, 6))
-    plt.plot(t, pay/100000, label="Pay (per 100k)")
-    plt.plot(t, status, label="Status")
-    plt.plot(t, research, label="Research")
+    # Subplot for Status and Research
+    plt.subplot(2, 1, 2)
+    plt.plot(t, status, label="Status", color="green")
+    plt.plot(t, research, label="Research", color="red")
     plt.xlabel("Time (years)")
     plt.ylabel("Values")
-    plt.title("Career Evolution Over Time")
+    plt.title("Status and Research Evolution Over Time")
     plt.legend()
     plt.grid()
-    plt.show()
 
-    # hello
+    plt.tight_layout()
+    plt.show()
