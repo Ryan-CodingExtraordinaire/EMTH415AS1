@@ -17,8 +17,8 @@ inflation = 0.02  # Annual inflation rate
 # setting some parameters constant so that the recognition parameter can be explored,
 # the parameters have been tweaked to make the model replicate the real data
 RECOGNITION_VAL = 0.01
-ALPHA_R_VAL = 0.05
-ALPHA_T_VAL = 0.01
+ALPHA_R_VAL = 0.045
+ALPHA_T_VAL = 0.025
 BETA_VAL = 0.5
 
 female_reduction_factor = 0.51546 # found by running "male vs female recognition" section 
@@ -130,12 +130,11 @@ if __name__ == "__main__":
     data = np.loadtxt('UC_Academic_Career_Salary_2025_40yr.csv', delimiter=',', skiprows=1, usecols=(0, 1))
     years = data[:, 0]
     salaries = data[:, 1]
-    plt.plot(years, salaries, label="Actual Salary Data", marker='o')
-    plt.plot(t, pay_male, label="Pay $ (Male)", color="blue")
-    plt.plot(t, pay_female, label="Pay $ (Female)", color="orange")
+    # plt.plot(years, salaries, label="Actual Salary Data", marker='o')
+    plt.plot(t, pay_male, label="Pay [$]", color="blue")
+    plt.plot(t, pay_female, label="Pay [$] reduced", color="orange", linestyle='--')
     plt.xlabel("Time (years)")
     plt.ylabel("Modelled Pay")
-    plt.title("Pay Evolution Over Time")
     plt.grid()
     plt.legend()
 
@@ -145,7 +144,6 @@ if __name__ == "__main__":
     plt.plot(t, research_male, label="Research", color="red")
     plt.xlabel("Time (years)")
     plt.ylabel("Values")
-    plt.title("Status and Research Evolution Over Time")
     plt.legend()
     plt.grid()
     plt.tight_layout()
